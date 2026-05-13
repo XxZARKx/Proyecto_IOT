@@ -29,14 +29,17 @@ public class InventoryService {
     private final UserService userService;
     private final AlertService alertService;
 
+    @Transactional(readOnly = true)
     public List<InventoryMovementResponseDTO> list() {
         return movementRepository.findAll().stream().map(this::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<InventoryMovementResponseDTO> recent() {
         return movementRepository.findTop10ByOrderByCreatedAtDesc().stream().map(this::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<InventoryMovementResponseDTO> history(Long productId) {
         Product product = productService.get(productId);
         return movementRepository.findByProductOrderByCreatedAtDesc(product).stream().map(this::toDto).toList();
@@ -52,6 +55,7 @@ public class InventoryService {
         return registerMovement(product, type, quantity, reason, null, "IOT");
     }
 
+    @Transactional(readOnly = true)
     public long countThisMonth() {
         LocalDateTime start = LocalDateTime.now().withDayOfMonth(1).toLocalDate().atStartOfDay();
         return movementRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(start, LocalDateTime.now()).size();

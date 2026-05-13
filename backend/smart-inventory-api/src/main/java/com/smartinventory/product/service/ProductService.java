@@ -10,6 +10,7 @@ import com.smartinventory.product.model.ProductStatus;
 import com.smartinventory.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -20,6 +21,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
 
+    @Transactional(readOnly = true)
     public List<ProductResponseDTO> list(String search) {
         return productRepository.findByStatusOrderByNameAsc(ProductStatus.ACTIVO).stream()
                 .filter(p -> search == null || search.isBlank()
@@ -29,6 +31,7 @@ public class ProductService {
                 .toList();
     }
 
+    @Transactional
     public ProductResponseDTO create(ProductRequestDTO dto) {
         if (productRepository.existsBySku(dto.sku())) {
             throw new BadRequestException("El SKU ya existe");
@@ -49,6 +52,7 @@ public class ProductService {
         return toDto(productRepository.save(product));
     }
 
+    @Transactional
     public ProductResponseDTO update(Long id, ProductRequestDTO dto) {
         validateStockLimits(dto.minimumStock(), dto.maximumStock());
         Product product = get(id);
@@ -62,6 +66,7 @@ public class ProductService {
         return toDto(productRepository.save(product));
     }
 
+    @Transactional(readOnly = true)
     public List<ProductResponseDTO> lowStock() {
         return productRepository.findAll().stream()
                 .filter(p -> p.getCurrentStock() <= p.getMinimumStock())
@@ -70,10 +75,12 @@ public class ProductService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public Product get(Long id) {
         return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
     }
 
+    @Transactional(readOnly = true)
     public Product getBySku(String sku) {
         return productRepository.findBySku(sku).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado por SKU"));
     }

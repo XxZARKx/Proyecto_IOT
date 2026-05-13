@@ -31,10 +31,12 @@ public class IotService {
     private final InventoryService inventoryService;
     private final Random random = new Random();
 
+    @Transactional(readOnly = true)
     public List<SensorDeviceResponseDTO> devices() {
         return deviceRepository.findAll().stream().map(this::toDto).toList();
     }
 
+    @Transactional
     public SensorDeviceResponseDTO createDevice(SensorDeviceRequestDTO dto) {
         if (deviceRepository.existsByCode(dto.code())) {
             throw new BadRequestException("El codigo del dispositivo ya existe");
@@ -49,6 +51,7 @@ public class IotService {
         return toDto(deviceRepository.save(device));
     }
 
+    @Transactional(readOnly = true)
     public List<SensorReadingResponseDTO> readings() {
         return readingRepository.findTop50ByOrderByCreatedAtDesc().stream().map(this::toDto).toList();
     }
@@ -75,6 +78,7 @@ public class IotService {
         return toDto(reading);
     }
 
+    @Transactional
     public SensorReadingResponseDTO simulate() {
         SensorDevice device = deviceRepository.findAll().stream().findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Registra al menos un dispositivo IoT"));

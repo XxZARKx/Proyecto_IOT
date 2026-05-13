@@ -10,6 +10,7 @@ import com.smartinventory.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,10 +20,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
     public List<UserResponseDTO> list() {
         return userRepository.findAll().stream().map(this::toDto).toList();
     }
 
+    @Transactional
     public UserResponseDTO create(UserRequestDTO dto) {
         if (userRepository.existsByEmail(dto.email())) {
             throw new BadRequestException("El email ya esta registrado");
@@ -37,6 +40,7 @@ public class UserService {
         return toDto(userRepository.save(user));
     }
 
+    @Transactional(readOnly = true)
     public User getByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));

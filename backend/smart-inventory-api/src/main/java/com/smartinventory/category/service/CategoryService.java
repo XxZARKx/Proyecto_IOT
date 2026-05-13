@@ -8,6 +8,7 @@ import com.smartinventory.common.exception.BadRequestException;
 import com.smartinventory.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,10 +17,12 @@ import java.util.List;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
+    @Transactional(readOnly = true)
     public List<CategoryResponseDTO> list() {
         return categoryRepository.findByActiveTrueOrderByNameAsc().stream().map(this::toDto).toList();
     }
 
+    @Transactional
     public CategoryResponseDTO create(CategoryRequestDTO dto) {
         if (categoryRepository.existsByNameIgnoreCase(dto.name())) {
             throw new BadRequestException("La categoria ya existe");
@@ -27,6 +30,7 @@ public class CategoryService {
         return toDto(categoryRepository.save(Category.builder().name(dto.name()).description(dto.description()).build()));
     }
 
+    @Transactional(readOnly = true)
     public Category get(Long id) {
         return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Categoria no encontrada"));
     }

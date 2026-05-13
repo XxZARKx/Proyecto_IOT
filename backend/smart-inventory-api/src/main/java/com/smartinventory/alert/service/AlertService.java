@@ -10,6 +10,7 @@ import com.smartinventory.common.util.StockUtils;
 import com.smartinventory.product.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,10 +20,12 @@ import java.util.List;
 public class AlertService {
     private final AlertRepository alertRepository;
 
+    @Transactional(readOnly = true)
     public List<AlertResponseDTO> active() {
         return alertRepository.findByStatusOrderByCreatedAtDesc(AlertStatus.PENDIENTE).stream().map(this::toDto).toList();
     }
 
+    @Transactional
     public AlertResponseDTO resolve(Long id) {
         Alert alert = alertRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Alerta no encontrada"));
         alert.setStatus(AlertStatus.RESUELTA);
@@ -30,6 +33,7 @@ public class AlertService {
         return toDto(alertRepository.save(alert));
     }
 
+    @Transactional
     public void evaluate(Product product) {
         if (StockUtils.isCritical(product.getCurrentStock())) {
             createIfMissing(product, AlertType.STOCK_CRITICO, "Producto sin stock: " + product.getName());
@@ -43,6 +47,7 @@ public class AlertService {
         }
     }
 
+    @Transactional(readOnly = true)
     public long countActive() {
         return alertRepository.countByStatus(AlertStatus.PENDIENTE);
     }

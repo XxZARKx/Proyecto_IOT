@@ -10,6 +10,7 @@ import com.smartinventory.product.model.Product;
 import com.smartinventory.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +27,7 @@ public class AnalyticsService {
     private final InventoryService inventoryService;
     private final AlertService alertService;
 
+    @Transactional(readOnly = true)
     public DashboardDTO dashboard() {
         List<Product> products = productRepository.findAll();
         return new DashboardDTO(
@@ -42,6 +44,7 @@ public class AnalyticsService {
         );
     }
 
+    @Transactional(readOnly = true)
     public List<TopProductDTO> topProducts() {
         return movementRepository.findByMovementTypeAndCreatedAtAfter(MovementType.SALIDA, LocalDateTime.now().minusDays(90)).stream()
                 .collect(Collectors.groupingBy(InventoryMovement::getProduct, Collectors.summingLong(InventoryMovement::getQuantity)))
@@ -52,6 +55,7 @@ public class AnalyticsService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<LowRotationDTO> lowRotation() {
         LocalDateTime from = LocalDateTime.now().minusDays(30);
         Map<Product, Long> exits = movementRepository.findByMovementTypeAndCreatedAtAfter(MovementType.SALIDA, from).stream()
@@ -64,6 +68,7 @@ public class AnalyticsService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<DemandPredictionDTO> demandPrediction() {
         LocalDateTime from = LocalDateTime.now().minusDays(30);
         Map<Product, Long> exits = movementRepository.findByMovementTypeAndCreatedAtAfter(MovementType.SALIDA, from).stream()
@@ -77,6 +82,7 @@ public class AnalyticsService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ReplenishmentDTO> replenishment() {
         Map<Long, DemandPredictionDTO> predictions = demandPrediction().stream().collect(Collectors.toMap(DemandPredictionDTO::productId, p -> p));
         return productRepository.findAll().stream()
