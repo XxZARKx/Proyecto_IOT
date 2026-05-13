@@ -1,5 +1,6 @@
 package com.smartinventory.user.service;
 
+import com.smartinventory.audit.service.AuditService;
 import com.smartinventory.common.exception.BadRequestException;
 import com.smartinventory.common.exception.ResourceNotFoundException;
 import com.smartinventory.user.dto.UserRequestDTO;
@@ -19,6 +20,7 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditService auditService;
 
     @Transactional(readOnly = true)
     public List<UserResponseDTO> list() {
@@ -37,7 +39,9 @@ public class UserService {
                 .role(dto.role())
                 .status(UserStatus.ACTIVO)
                 .build();
-        return toDto(userRepository.save(user));
+        User saved = userRepository.save(user);
+        auditService.log("CREATE", "User", saved.getId(), "Usuario creado por administrador: " + saved.getEmail());
+        return toDto(saved);
     }
 
     @Transactional(readOnly = true)

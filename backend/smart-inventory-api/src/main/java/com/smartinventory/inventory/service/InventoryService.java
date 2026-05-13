@@ -1,5 +1,6 @@
 package com.smartinventory.inventory.service;
 
+import com.smartinventory.audit.service.AuditService;
 import com.smartinventory.alert.service.AlertService;
 import com.smartinventory.common.exception.BadRequestException;
 import com.smartinventory.inventory.dto.InventoryMovementRequestDTO;
@@ -28,6 +29,7 @@ public class InventoryService {
     private final ProductRepository productRepository;
     private final UserService userService;
     private final AlertService alertService;
+    private final AuditService auditService;
 
     @Transactional(readOnly = true)
     public List<InventoryMovementResponseDTO> list() {
@@ -102,6 +104,8 @@ public class InventoryService {
                 .source(source)
                 .build());
         alertService.evaluate(product);
+        auditService.log("STOCK_" + type.name(), "InventoryMovement", movement.getId(),
+                "Movimiento " + type + " de " + quantity + " unidades para " + product.getSku());
         return movement;
     }
 

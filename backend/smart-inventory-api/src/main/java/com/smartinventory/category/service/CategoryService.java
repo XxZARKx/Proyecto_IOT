@@ -1,5 +1,6 @@
 package com.smartinventory.category.service;
 
+import com.smartinventory.audit.service.AuditService;
 import com.smartinventory.category.dto.CategoryRequestDTO;
 import com.smartinventory.category.dto.CategoryResponseDTO;
 import com.smartinventory.category.model.Category;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryService {
     private final CategoryRepository categoryRepository;
+    private final AuditService auditService;
 
     @Transactional(readOnly = true)
     public List<CategoryResponseDTO> list() {
@@ -27,7 +29,9 @@ public class CategoryService {
         if (categoryRepository.existsByNameIgnoreCase(dto.name())) {
             throw new BadRequestException("La categoria ya existe");
         }
-        return toDto(categoryRepository.save(Category.builder().name(dto.name()).description(dto.description()).build()));
+        Category saved = categoryRepository.save(Category.builder().name(dto.name()).description(dto.description()).build());
+        auditService.log("CREATE", "Category", saved.getId(), "Categoria creada: " + saved.getName());
+        return toDto(saved);
     }
 
     @Transactional(readOnly = true)

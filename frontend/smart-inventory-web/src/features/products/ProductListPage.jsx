@@ -11,6 +11,10 @@ import { useFetch } from '../../hooks/useFetch'
 export default function ProductListPage() {
   const [search, setSearch] = useState('')
   const { data, loading, reload } = useFetch(() => productApi.list(search), [search])
+  async function deactivate(id) {
+    await productApi.deactivate(id)
+    reload()
+  }
   return (
     <section className="grid gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -25,7 +29,13 @@ export default function ProductListPage() {
         { key: 'currentStock', label: 'Stock' },
         { key: 'minimumStock', label: 'Min' },
         { key: 'status', label: 'Estado', render: (r) => <Badge>{r.status}</Badge> },
-        { key: 'id', label: 'Detalle', render: (r) => <Link className="font-semibold text-teal-700" to={`/products/${r.id}`}>Ver</Link> },
+        { key: 'id', label: 'Acciones', render: (r) => (
+          <div className="flex flex-wrap gap-2">
+            <Link className="font-semibold text-teal-700" to={`/products/${r.id}`}>Ver</Link>
+            <Link className="font-semibold text-blue-700" to={`/products/${r.id}/edit`}>Editar</Link>
+            <button className="font-semibold text-rose-700" onClick={() => deactivate(r.id)}>Desactivar</button>
+          </div>
+        ) },
       ]} />}
     </section>
   )

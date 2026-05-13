@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { AlertTriangle, BarChart3, Boxes, LayoutDashboard, PackagePlus, RadioTower, Tags, Users, FileText } from 'lucide-react'
+import { AlertTriangle, BarChart3, Boxes, ClipboardList, FileText, LayoutDashboard, PackagePlus, RadioTower, Tags, Users } from 'lucide-react'
 
 const links = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -10,6 +10,7 @@ const links = [
   { to: '/iot/devices', label: 'IoT', icon: RadioTower },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/reports', label: 'Reportes', icon: FileText },
+  { to: '/audit', label: 'Auditoria', icon: ClipboardList },
   { to: '/users', label: 'Usuarios', icon: Users },
 ]
 

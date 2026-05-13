@@ -1,5 +1,6 @@
 package com.smartinventory.alert.service;
 
+import com.smartinventory.audit.service.AuditService;
 import com.smartinventory.alert.dto.AlertResponseDTO;
 import com.smartinventory.alert.model.Alert;
 import com.smartinventory.alert.model.AlertStatus;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AlertService {
     private final AlertRepository alertRepository;
+    private final AuditService auditService;
 
     @Transactional(readOnly = true)
     public List<AlertResponseDTO> active() {
@@ -30,7 +32,9 @@ public class AlertService {
         Alert alert = alertRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Alerta no encontrada"));
         alert.setStatus(AlertStatus.RESUELTA);
         alert.setResolvedAt(LocalDateTime.now());
-        return toDto(alertRepository.save(alert));
+        Alert saved = alertRepository.save(alert);
+        auditService.log("RESOLVE", "Alert", saved.getId(), "Alerta resuelta: " + saved.getAlertType());
+        return toDto(saved);
     }
 
     @Transactional

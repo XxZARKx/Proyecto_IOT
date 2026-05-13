@@ -1,5 +1,6 @@
 package com.smartinventory.iot.service;
 
+import com.smartinventory.audit.service.AuditService;
 import com.smartinventory.common.exception.BadRequestException;
 import com.smartinventory.common.exception.ResourceNotFoundException;
 import com.smartinventory.inventory.model.MovementType;
@@ -29,6 +30,7 @@ public class IotService {
     private final SensorReadingRepository readingRepository;
     private final ProductService productService;
     private final InventoryService inventoryService;
+    private final AuditService auditService;
     private final Random random = new Random();
 
     @Transactional(readOnly = true)
@@ -48,7 +50,9 @@ public class IotService {
                 .location(dto.location())
                 .status(dto.status() == null ? DeviceStatus.ACTIVO : dto.status())
                 .build();
-        return toDto(deviceRepository.save(device));
+        SensorDevice saved = deviceRepository.save(device);
+        auditService.log("CREATE", "SensorDevice", saved.getId(), "Dispositivo IoT creado: " + saved.getCode());
+        return toDto(saved);
     }
 
     @Transactional(readOnly = true)
@@ -75,6 +79,7 @@ public class IotService {
         if (process) {
             inventoryService.registerIotMovement(product, movementType, dto.quantityDetected(), "Lectura IoT " + device.getCode());
         }
+        auditService.log("CREATE", "SensorReading", reading.getId(), "Lectura IoT " + device.getCode() + " para " + product.getSku());
         return toDto(reading);
     }
 

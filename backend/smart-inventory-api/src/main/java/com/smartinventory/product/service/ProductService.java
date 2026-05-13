@@ -1,5 +1,6 @@
 package com.smartinventory.product.service;
 
+import com.smartinventory.audit.service.AuditService;
 import com.smartinventory.category.service.CategoryService;
 import com.smartinventory.common.exception.BadRequestException;
 import com.smartinventory.common.exception.ResourceNotFoundException;
@@ -20,6 +21,7 @@ import java.util.List;
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
+    private final AuditService auditService;
 
     @Transactional(readOnly = true)
     public List<ProductResponseDTO> list(String search) {
@@ -49,7 +51,9 @@ public class ProductService {
                 .category(categoryService.get(dto.categoryId()))
                 .status(ProductStatus.ACTIVO)
                 .build();
-        return toDto(productRepository.save(product));
+        Product saved = productRepository.save(product);
+        auditService.log("CREATE", "Product", saved.getId(), "Producto creado: " + saved.getSku());
+        return toDto(saved);
     }
 
     @Transactional
@@ -63,7 +67,18 @@ public class ProductService {
         product.setMinimumStock(dto.minimumStock());
         product.setMaximumStock(dto.maximumStock());
         product.setCategory(categoryService.get(dto.categoryId()));
-        return toDto(productRepository.save(product));
+        Product saved = productRepository.save(product);
+        auditService.log("UPDATE", "Product", saved.getId(), "Producto actualizado: " + saved.getSku());
+        return toDto(saved);
+    }
+
+    @Transactional
+    public ProductResponseDTO deactivate(Long id) {
+        Product product = get(id);
+        product.setStatus(ProductStatus.INACTIVO);
+        Product saved = productRepository.save(product);
+        auditService.log("DEACTIVATE", "Product", saved.getId(), "Producto desactivado: " + saved.getSku());
+        return toDto(saved);
     }
 
     @Transactional(readOnly = true)

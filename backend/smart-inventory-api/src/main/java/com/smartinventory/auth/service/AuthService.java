@@ -4,6 +4,7 @@ import com.smartinventory.auth.dto.LoginRequestDTO;
 import com.smartinventory.auth.dto.LoginResponseDTO;
 import com.smartinventory.auth.dto.RegisterRequestDTO;
 import com.smartinventory.common.exception.BadRequestException;
+import com.smartinventory.audit.service.AuditService;
 import com.smartinventory.security.JwtService;
 import com.smartinventory.user.dto.UserResponseDTO;
 import com.smartinventory.user.model.Role;
@@ -27,6 +28,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final AuditService auditService;
 
     public LoginResponseDTO login(LoginRequestDTO dto) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.email(), dto.password()));
@@ -43,9 +45,11 @@ public class AuthService {
                 .fullName(dto.fullName())
                 .email(dto.email())
                 .password(passwordEncoder.encode(dto.password()))
-                .role(dto.role() == null ? Role.ENCARGADO_ALMACEN : dto.role())
+                .role(Role.ENCARGADO_ALMACEN)
                 .status(UserStatus.ACTIVO)
                 .build();
-        return userService.toDto(userRepository.save(user));
+        User saved = userRepository.save(user);
+        auditService.log("REGISTER", "User", saved.getId(), "Registro publico de usuario " + saved.getEmail());
+        return userService.toDto(saved);
     }
 }

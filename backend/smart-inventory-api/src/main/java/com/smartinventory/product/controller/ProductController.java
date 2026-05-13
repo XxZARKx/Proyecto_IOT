@@ -27,6 +27,11 @@ public class ProductController {
         return productService.update(id, dto);
     }
 
+    @PatchMapping("/{id}/deactivate")
+    public Object deactivate(@PathVariable Long id) {
+        return productService.deactivate(id);
+    }
+
     @GetMapping("/low-stock")
     public Object lowStock() {
         return productService.lowStock();
