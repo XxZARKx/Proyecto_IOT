@@ -1,0 +1,4 @@
+[
+  { "deviceCode": "RFID-ALM-001", "productSku": "PROD-0001", "quantityDetected": 5, "movementType": "ENTRADA" },
+  { "deviceCode": "PESO-EST-002", "productSku": "PROD-0003", "quantityDetected": 2, "movementType": "SALIDA" }
+]

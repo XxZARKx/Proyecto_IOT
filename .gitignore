@@ -1,0 +1,22 @@
+# Java
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Env
+.env
+.env.local
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+Thumbs.db
+.DS_Store
+
+# Extracted helper
+SPEC_EXTRACTED.txt

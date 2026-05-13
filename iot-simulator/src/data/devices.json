@@ -1,0 +1,4 @@
+[
+  { "code": "RFID-ALM-001", "sensorType": "RFID", "location": "Almacen principal" },
+  { "code": "PESO-EST-002", "sensorType": "WEIGHT_SENSOR", "location": "Pasillo bebidas" }
+]

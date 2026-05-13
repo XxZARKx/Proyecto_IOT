@@ -1,0 +1,7 @@
+[
+  { "sku": "PROD-0001", "name": "Arroz superior 5kg" },
+  { "sku": "PROD-0002", "name": "Aceite vegetal 1L" },
+  { "sku": "PROD-0003", "name": "Agua mineral 625ml" },
+  { "sku": "PROD-0004", "name": "Gaseosa cola 3L" },
+  { "sku": "PROD-0005", "name": "Detergente 900g" }
+]
